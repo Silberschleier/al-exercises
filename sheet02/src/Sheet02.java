@@ -1,0 +1,43 @@
+/*
+ * Authors: Maren Pielka, Christopher Schmidt
+ */
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class Sheet02 {
+    public static void main (String[] args) {
+        boolean[] state = new boolean[84];
+        Scanner reader = new Scanner(System.in);
+        char startingCondition = 0;
+
+        // Read parameters from user
+        while (startingCondition != 'r' && startingCondition != 's') {
+            System.out.print("Choose the starting condition [S/R]: ");
+            startingCondition = reader.next().toLowerCase().charAt(0);
+            System.out.println(startingCondition);
+        }
+
+        System.out.print("Choose the neighborhood radius: ");
+        int radius = reader.nextInt();
+        System.out.print("Choose a rule in Wolfram notation: ");
+        int rule = reader.nextInt();
+
+        if (startingCondition == 'r') {
+            Random random = new Random();
+            for (int i = 0; i < state.length; i++) {
+                state[i] = random.nextBoolean();
+            }
+        } else {
+            state[42] = true;
+        }
+
+        printState(state);
+    }
+
+    private static void printState(boolean[] state) {
+        for (boolean x : state) {
+            System.out.print((x ? 1 : 0) + " ");
+        }
+    }
+}
