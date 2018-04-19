@@ -20,6 +20,8 @@ public class Sheet02 {
 
         System.out.print("Choose the neighborhood radius: ");
         int radius = reader.nextInt();
+        int neighborhood = 2 * radius + 1;
+
         System.out.print("Choose a rule in Wolfram notation: ");
         int rule = reader.nextInt();
 
@@ -32,12 +34,38 @@ public class Sheet02 {
             state[42] = true;
         }
 
-        printState(state);
+        for ( int i = 0; i <= 10; i++ ) {
+            System.out.print(i + ":\t\t");
+            printState(state);
+            state = applyRule(state, rule, radius);
+        }
+
+
+    }
+
+    private static boolean[] applyRule(boolean[] state, int rule, int radius) {
+        boolean[] result = new boolean[state.length];
+
+        // "Sliding the window" over the state
+        for (int i = radius; i < state.length-radius; i++) {
+            // Get the decimal representation of the neighborhood
+            int n = 0;
+            for (int j = i - radius; j < i + radius; j++) {
+                // This shifts the current int by one bit and adds the value of the current position
+                n = (n << 1) + (state[j] ? 1 : 0);
+            }
+
+            // Check if the pattern in the rule is set or not, by shifting
+            result[i] = 1 == ((rule >> n) & 1);
+        }
+
+        return result;
     }
 
     private static void printState(boolean[] state) {
         for (boolean x : state) {
             System.out.print((x ? 1 : 0) + " ");
         }
+        System.out.println();
     }
 }
