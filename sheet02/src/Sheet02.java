@@ -34,7 +34,7 @@ public class Sheet02 {
             state[42] = true;
         }
 
-        for ( int i = 0; i <= 10; i++ ) {
+        for ( int i = 0; i <= 20; i++ ) {
             System.out.print(i + ":\t\t");
             printState(state);
             state = applyRule(state, rule, radius);
@@ -50,7 +50,7 @@ public class Sheet02 {
         for (int i = radius; i < state.length-radius; i++) {
             // Get the decimal representation of the neighborhood
             int n = 0;
-            for (int j = i - radius; j < i + radius; j++) {
+            for (int j = i - radius; j <= i + radius; j++) {
                 // This shifts the current int by one bit and adds the value of the current position
                 n = (n << 1) + (state[j] ? 1 : 0);
             }
@@ -63,8 +63,9 @@ public class Sheet02 {
     }
 
     private static void printState(boolean[] state) {
+        // Printing dots instead of zeros for better visibility
         for (boolean x : state) {
-            System.out.print((x ? 1 : 0) + " ");
+            System.out.print((x ? "1" : ".") + " ");
         }
         System.out.println();
     }
