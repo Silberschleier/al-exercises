@@ -35,7 +35,7 @@ public class Sheet02 {
         }
 
         for ( int i = 0; i <= 20; i++ ) {
-            System.out.print(i + ":\t\t");
+            System.out.print(i + ":\t");
             printState(state);
             state = applyRule(state, rule, radius);
         }
@@ -48,14 +48,14 @@ public class Sheet02 {
 
         // "Sliding the window" over the state
         for (int i = radius; i < state.length-radius; i++) {
-            // Get the decimal representation of the neighborhood
+            // Get the decimal representation n of the neighborhood
             int n = 0;
             for (int j = i - radius; j <= i + radius; j++) {
                 // This shifts the current int by one bit and adds the value of the current position
                 n = (n << 1) + (state[j] ? 1 : 0);
             }
 
-            // Check if the pattern in the rule is set or not, by shifting
+            // Check if the n-th bit is set in the rule.
             result[i] = 1 == ((rule >> n) & 1);
         }
 
