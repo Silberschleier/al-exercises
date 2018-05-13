@@ -17,4 +17,11 @@ public class PredatorPreySystemA extends PredatorPreySystem {
     public double nextY(double x, double y) {
         return y + this.c * x + this.d * y + this.f * y * y;
     }
+
+    String getFilename(double x, double y) {
+        /*return "SystemA_x0-"+x+"_y0-"+y
+                +"_a-"+this.a+"_b-"+this.b+"_c-"+this.c+"_d-"+this.d+"_e-"+this.e+"_f-"+this.f
+                +".dat";*/
+        return "SystemA_current.dat";
+    }
 }

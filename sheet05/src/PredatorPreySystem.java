@@ -1,10 +1,15 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public abstract class PredatorPreySystem {
     abstract public double nextX(double x, double y);
     abstract public double nextY(double x, double y);
+    abstract String getFilename(double x, double y);
 
-    void evaluateSystem(double x, double y, int iterations, List<Double> results_x, List<Double> results_y) {
+    void evaluateSystem(double x, double y, int iterations, List<Double> results_x, List<Double> results_y) throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(getFilename(x, y), "UTF-8");
         double current_x, current_y;
         results_x.add(x); results_y.add(y);
 
@@ -15,6 +20,8 @@ public abstract class PredatorPreySystem {
             x = current_x; y = current_y;
             results_x.add(x); results_y.add(y);
             System.out.println("x: " + x + "\t\t\ty: " + y);
+            writer.println(i + "\t" + x + "\t" + y);
         }
+        writer.close();
     }
 }
