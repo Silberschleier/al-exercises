@@ -17,9 +17,13 @@ public abstract class PredatorPreySystem {
             current_x = this.nextX(x, y);
             current_y = this.nextY(x, y);
 
+            // Zero if predator or prey extincts
+            if ( current_x < 0 ) current_x = 0;
+            if ( current_y < 0 ) current_y = 0;
+
             x = current_x; y = current_y;
             results_x.add(x); results_y.add(y);
-            System.out.println("x: " + x + "\t\t\ty: " + y);
+            System.out.println("i: " + i + "\t\tx: " + x + "\t\t\ty: " + y);
             writer.println(i + "\t" + x + "\t" + y);
         }
         writer.close();
