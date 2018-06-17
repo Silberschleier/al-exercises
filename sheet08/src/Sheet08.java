@@ -88,8 +88,6 @@ public class Sheet08 {
        
         // EA loop (selection, mutation etc)
         float[] fitnesses = new float[P];
-        float bestFitness = 0;
-        float worstFitness = 100000;
         float meanFitness = 0;
         int numGen = 1;
         int[] bestIndividual = new int[92];
@@ -100,6 +98,8 @@ public class Sheet08 {
 			writer.println("Results for P=" + P +", my=" + my + "\n");
 			writer.println("Generation\tMax\t\tMin\t\tMean");
 	        while(true) {
+	        	float bestFitness = 0;
+	            float worstFitness = 100000;
 	        	System.out.println("\nGeneration " + numGen + ": \n");
 	        	
 	        	// fitness evaluation: measure the length of the path
