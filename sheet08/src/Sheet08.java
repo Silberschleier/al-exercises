@@ -8,6 +8,14 @@ import java.util.concurrent.ThreadLocalRandom;
  * This Evolutionary algorithm is designed to find the maximum path visiting all points from a given set,
  * with the constraint to visit each point exactly twice.
  * 
+ * The parameters P and My are to be set by the user, while lambda is implicitly equal to P - My, to keep the population size 
+ * the same.
+ * The stopping criterion is the maximal fitness (the longest path) being greater than 42000.
+ * The mutation probability is set to 0.4.
+ * 
+ * There is no parent selection or crossover done in this algorithm, because it is not easily applicable to that problem.
+ * All random changes in the subsequent generations are therefore done by mutation.
+ * 
 */
 
 public class Sheet08 {
@@ -24,10 +32,10 @@ public class Sheet08 {
         }
         
         // Read parameter My from user
- 		int my = 0;
+ 		int my = P/3;
 		System.out.print("Choose the parameter My (number of individuals to be kept after external selection): ");
 		int tmp2 = reader.nextInt();
-		if(tmp2 > 0){
+		if(tmp2 > 0 && tmp2 <= P){
 			my = tmp2;
 		}
         
@@ -84,6 +92,7 @@ public class Sheet08 {
         float worstFitness = 100000;
         float meanFitness = 0;
         int numGen = 1;
+        int[] bestIndividual = new int[92];
 
         try {
         	FileWriter fw = new FileWriter("results.txt");
@@ -125,6 +134,9 @@ public class Sheet08 {
 	            	}
 	        	}
 	        	
+	        	bestIndividual = population[sortedIndices[0]];
+	        	// TODO output best individual in the very end
+	        	
 	        	// output max, min and mean fitness
 	        	System.out.println("Max\t\tMin\t\tMean");
 	        	System.out.println(bestFitness + "\t" + worstFitness + "\t" + meanFitness);
@@ -141,7 +153,7 @@ public class Sheet08 {
 	        	}
 	        	
 	        	// check for stopping criterion
-	        	if(numGen>50) {
+	        	if(bestFitness>42000) {
 	        		break;
 	        	}
 	        	
@@ -152,7 +164,7 @@ public class Sheet08 {
 	        	// first produce (P - my) copies from the reduced population
 	        	Random random2 = new Random();
 	        	int counter = 0;
-	        	double mutProb = 0.3;
+	        	double mutProb = 0.4;
 	        	for(int it=0; it<= P/my; it++) {
 	        		for (int i=0; i<my; i++) {
 	        			if(my + counter > P-1) {	
@@ -160,10 +172,10 @@ public class Sheet08 {
 		    			}	        			
 		    			newPopulation[my+counter] = newPopulation[i].clone();
 		    			for(int j = 0; j<91; j++) {
-			        		if (random2.nextDouble() < mutProb) {	
-			        			//System.out.print("In individual" + i+": ");
-			        			newPopulation[my+counter][j]= newPopulation[i][j+1];
-			        			newPopulation[my+counter][j+1] = newPopulation[i][j];
+			        		if (random2.nextDouble() < mutProb) {
+			        			int tmp31 = newPopulation[my+counter][j];
+			        			newPopulation[my+counter][j]= newPopulation[my+counter][j+1];
+			        			newPopulation[my+counter][j+1] = tmp31;
 			        		}
 			        		
 						}
@@ -174,26 +186,6 @@ public class Sheet08 {
 	    				break;
 	    			}
 	        	}	
-	        	
-	        	// mutate the new individuals with a given probability
-	        	
-	        	int tmp31;
-	        	for(int i=my; i<P; i++) {
-	        		for(int j = 0; j<91; j++) {
-	        			int[] tmpArr = newPopulation[i];
-		        		if (random2.nextDouble() < mutProb) {	
-		        			//System.out.print("In individual" + i+": ");
-		        			tmp31 = tmpArr[j];
-		        			//System.out.print("Before: "+ newPopulation[i][j] + " ");
-		        			tmpArr[j] = tmpArr[j+1];
-		        			//System.out.print("Replaced i: "+newPopulation[i][j] + " ");
-		        			tmpArr[j+1] = tmp31;        
-		        			//System.out.print("Replaced i+1 :"+tmpArr[j+1] + " ");
-		        		}
-		        		newPopulation[i] = tmpArr;
-		        		
-					}
-	        	}
 				
 	    		population = newPopulation;
 	    		/**
@@ -202,14 +194,32 @@ public class Sheet08 {
 	    				System.out.print(population[i][j] + " ");
 	    			}
 	    			System.out.println("");
-	    		}
-    		**/	
+	    		}**/
+    			
 	        } 
 	        writer.close();
         } catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        FileWriter fw1;
+		try {
+			fw1 = new FileWriter("bestRoute.txt");
+			PrintWriter writer = new PrintWriter(fw1, true);
+			writer.println("Best route after " + (numGen-1) + " generations:\n");
+			writer.println("\tPoint\tCoordinates\n");
+			for(int i=1;i<92; i++) {
+				writer.print(i +"\t");
+				for(int j=0; j<3; j++) {
+					writer.print(cities[bestIndividual[i]-1][j]+"\t");
+				}
+				writer.println("");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
         
 	}
 	
