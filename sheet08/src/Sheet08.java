@@ -21,6 +21,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Sheet08 {
 
 	public static void main(String[] args) {
+		// Parameters
+		int maxFitness = 42000;
+		int minFitness = 30000;
+		Boolean shortestPath = true;
+		double mutProb = 0.4;
+		
 		Scanner reader = new Scanner(System.in);
 		
         // Read parameter P from user
@@ -82,7 +88,7 @@ public class Sheet08 {
         int[][] population = new int[P][92];
         // randomly generate P individuals
         for(int i=0; i<P; i++) {
-        	population[i] = produceValidIndividual();
+        	population[i] = produceValidIndividual(shortestPath);
         }
 
        
@@ -91,6 +97,7 @@ public class Sheet08 {
         float meanFitness = 0;
         int numGen = 1;
         int[] bestIndividual = new int[92];
+        int[] worstIndividual = new int[92];
 
         try {
         	FileWriter fw = new FileWriter("results.txt");
@@ -135,6 +142,7 @@ public class Sheet08 {
 	        	}
 	        	
 	        	bestIndividual = population[sortedIndices[0]];
+	        	worstIndividual = population[sortedIndices[sortedIndices.length-1]];
 	        	// TODO output best individual in the very end
 	        	
 	        	// output max, min and mean fitness
@@ -146,16 +154,29 @@ public class Sheet08 {
 	        	
 	        	fitnesses = oldFitnesses;
 	        	
-	        	// external selection (keep the best my individuals)
 	        	int[][] newPopulation = new int[P][92];
-	        	for(int i=0; i<my; i++) {
-	        		newPopulation[i] = population[sortedIndices[i]];
+	        	
+	        	if(shortestPath) {
+	        		// external selection (keep the worst my individuals)
+		        	for(int i=0; i<my; i++) {
+		        		newPopulation[i] = population[sortedIndices[P-i-1]];
+		        	}
+	        		// check for stopping criterion
+	        		if(worstFitness<minFitness) {
+		        		break;
+		        	}
+	        	}
+	        	else {
+	        		// external selection (keep the best my individuals)
+		        	for(int i=0; i<my; i++) {
+		        		newPopulation[i] = population[sortedIndices[i]];
+		        	}
+		        	// check for stopping criterion
+	        		if(bestFitness>maxFitness) {
+		        		break;
+		        	}
 	        	}
 	        	
-	        	// check for stopping criterion
-	        	if(bestFitness>42000) {
-	        		break;
-	        	}
 	        	
 	        	// parent selection omitted, because not applicable to this scenario.
 	        	
@@ -164,7 +185,6 @@ public class Sheet08 {
 	        	// first produce (P - my) copies from the reduced population
 	        	Random random2 = new Random();
 	        	int counter = 0;
-	        	double mutProb = 0.4;
 	        	for(int it=0; it<= P/my; it++) {
 	        		for (int i=0; i<my; i++) {
 	        			if(my + counter > P-1) {	
@@ -173,9 +193,21 @@ public class Sheet08 {
 		    			newPopulation[my+counter] = newPopulation[i].clone();
 		    			for(int j = 0; j<91; j++) {
 			        		if (random2.nextDouble() < mutProb) {
-			        			int tmp31 = newPopulation[my+counter][j];
-			        			newPopulation[my+counter][j]= newPopulation[my+counter][j+1];
-			        			newPopulation[my+counter][j+1] = tmp31;
+			        			// check for additional criterion in case of shortest path (dont visit the same city twice in a row)
+			        			if(shortestPath) {
+			        				if(j != 0 && j!= 90 && j!= 92 && (newPopulation[my+counter][j] != newPopulation[my+counter][j+2]) &&
+			        						(newPopulation[my+counter][j+1] != newPopulation[my+counter][j-1]))
+			        				{
+			        					int tmp31 = newPopulation[my+counter][j];
+					        			newPopulation[my+counter][j]= newPopulation[my+counter][j+1];
+					        			newPopulation[my+counter][j+1] = tmp31;
+			        				}
+			        			}
+			        			else {
+			        				int tmp31 = newPopulation[my+counter][j];
+				        			newPopulation[my+counter][j]= newPopulation[my+counter][j+1];
+				        			newPopulation[my+counter][j+1] = tmp31;
+			        			}	
 			        		}
 			        		
 						}
@@ -188,13 +220,13 @@ public class Sheet08 {
 	        	}	
 				
 	    		population = newPopulation;
-	    		/**
+	    		
 	    		for(int i=0; i<P; i++) {
 	    			for(int j=0; j<92; j++) {
 	    				System.out.print(population[i][j] + " ");
 	    			}
 	    			System.out.println("");
-	    		}**/
+	    		}
     			
 	        } 
 	        writer.close();
@@ -211,7 +243,12 @@ public class Sheet08 {
 			for(int i=1;i<92; i++) {
 				writer.print(i +"\t");
 				for(int j=0; j<3; j++) {
-					writer.print(cities[bestIndividual[i]-1][j]+"\t");
+					if(shortestPath) {
+						writer.print(cities[worstIndividual[i]-1][j]+"\t");
+					}
+					else {
+						writer.print(cities[bestIndividual[i]-1][j]+"\t");
+					}					
 				}
 				writer.println("");
 			}
@@ -223,7 +260,7 @@ public class Sheet08 {
         
 	}
 	
-	public static int[] produceValidIndividual(){
+	public static int[] produceValidIndividual(Boolean shortestPath){
 		int[] individual = new int[92];
 		
 		// each point is to appear exactly twice
@@ -231,22 +268,34 @@ public class Sheet08 {
 			individual[i-1] = i;
 			individual[92-i] = i;
 		}
-		shuffleArray(individual);
+		shuffleArray(individual, shortestPath);
 		
 		return individual;
 	}
 	
 	 // From stack overflow :P
-	  static void shuffleArray(int[] ar)
+	  static void shuffleArray(int[] ar, Boolean shortestPath)
 	  {
 	    Random rnd = ThreadLocalRandom.current();
 	    for (int i = ar.length - 1; i > 0; i--)
 	    {
 	      int index = rnd.nextInt(i + 1);
-	      // Simple swap
-	      int a = ar[index];
-	      ar[index] = ar[i];
-	      ar[i] = a;
+	   // check for additional criterion in case of shortest path (dont visit the same city twice in a row)
+	      if (shortestPath) {
+	    	  if(i != 0 && i != 91 && index != 0 && index != 91) {
+	    		  if((ar[i] != ar[index-1]) && (ar[i] != ar[index+1]) && (ar[index] != ar[i-1]) && (ar[index] != ar[i+1])) {
+		    		  int a = ar[index];
+				      ar[index] = ar[i];
+				      ar[i] = a;
+		    	  } 
+	    	  }	  
+	      }
+	      else{
+	    	// Simple swap
+		      int a = ar[index];
+		      ar[index] = ar[i];
+		      ar[i] = a;
+	      }
 	    }
 	  }
 	
